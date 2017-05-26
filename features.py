@@ -12,13 +12,15 @@ def extract_features_many(imgs, color_space='RGB', spatial_bins=(32, 32), hist_b
     return [extract_features(img, color_space, spatial_bins, hist_bins, hist_range) for img in imgs]
 
 
-def extract_features(img: np.ndarray, color_space: str = 'RGB', spatial_bins: Tuple = (32, 32),
+def extract_features(img: np.ndarray, color_space: str = 'RGB', spatial_size: Tuple = (32, 32),
                      hist_bins: int = 32, hist_range: Tuple = (0, 256)):
     """ Convert an image to a vector of features. """
     img = convert_color_space(img, color_space)
-    binned = bin_spatial(img, spatial_bins)
+    binned = bin_spatial(img, spatial_size)
     colored = color_hist(img, hist_bins, hist_range)
-    hog_features = hog(img)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    hog_features = hog(gray)
     return np.concatenate([binned, colored, hog_features])
 
 
@@ -53,7 +55,6 @@ def color_hist(img, nbins=32, bins_range=(0, 256)):
 
     # Return the individual histograms, bin_centers and feature vector
     return hist_features
-
 
 # def get_hog_features(img, orientations, pix_per_cell, cell_per_block, vis=False, feature_vec=True):
 #     ret = hog(img,
