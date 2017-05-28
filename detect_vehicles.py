@@ -1,3 +1,4 @@
+from collections import deque
 from itertools import chain
 
 import numpy as np
@@ -26,16 +27,33 @@ class VehicleDetection:
         heatmap = np.zeros_like(img[:, :, 0]).astype(np.float)
         heatmap = add_heat(heatmap, hot_windows)
         thresholded = apply_threshold(heatmap, HEATMAP_THRESHOLD)
-        heatmap = np.clip(thresholded, 0, 255)
-        labels = label(heatmap)
+        clipped = np.clip(thresholded, 0, 255)
+        labels = label(clipped)
+        return draw_labeled_bboxes(np.copy(img), labels)
+
+
+class MultiframeVehicleDetection(VehicleDetection):
+    def __init__(self, buffer_len):
+        super().__init__()
+        self.heatmaps = deque(maxlen=buffer_len)
+
+    def detect(self, img):
+        hot_windows = search_windows(img, all_windows(img.shape), self.model, self.scaler)
+        new_frame_heatmap = np.zeros_like(img[:, :, 0]).astype(np.float)
+        new_frame_heatmap = add_heat(new_frame_heatmap, hot_windows)
+        self.heatmaps.appendleft(new_frame_heatmap)
+
+        thresholded = apply_threshold(combine_heatmaps(self.heatmaps), len(self.heatmaps) + HEATMAP_THRESHOLD)
+        clipped = np.clip(thresholded, 0, 255)
+        labels = label(clipped)
         return draw_labeled_bboxes(np.copy(img), labels)
 
 
 TOP = 360
 HEIGHT = 256 + 128
 # WINDOW_SIZES = [96, 128, 192, 256]
-WINDOW_SIZES = [96, 128, 192]
-OVERLAP = .7
+WINDOW_SIZES = [96, 128]
+OVERLAP = .6
 
 
 def all_windows(shape):
@@ -44,6 +62,13 @@ def all_windows(shape):
                                                         x_start=0,
                                                         window_width=ws, window_height=ws,
                                                         y_overlap=OVERLAP, x_overlap=OVERLAP) for ws in WINDOW_SIZES]))
+
+
+def combine_heatmaps(heatmaps):
+    agg = np.zeros_like(heatmaps[0])
+    for heatmap in heatmaps:
+        agg += heatmap
+    return agg
 
 
 def add_heat(heatmap, bbox_list):
