@@ -136,12 +136,18 @@ Here's an example result showing the heatmap from a series of frames of video, t
 ![alt text][image7]
 
 
-
 ---
 
 ###Discussion
 
 ####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+One of the biggest challenges in this project is finding the correct window size and shape to balance speed and performance with
+ability to cover cars of all distaces and areas in the screen. You want to be able to find cars at any position, but you don't
+want to have so many windows that your pipeline is too slow to actually, test, improve, and run in practice.
+My pipeline will likely fail if the camera is pointed at a different angle than the one it was tested on. For example,
+if the cars appear slightly higher up in the image, it may miss them. Also, the pipeline is untested on other vehicle types,
+it could potentially have problems with buses or large trucks. It may also have trouble if it is moved over to the right lane after being tested on the leftmost lane.
+The lowest hanging fruit for improvement at this point is speeding up the feature extraction so windows are less expensive. It would also
+be very useful to spend more time carefully selecting the best windows so we can accomplish more with fewer of them.
 
