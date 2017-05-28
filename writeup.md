@@ -73,7 +73,7 @@ ORIENTATIONS = 6
 PIXELS_PER_CELL = 8
 CELLS_PER_BLOCK = 2
 ```
-And verified that they worked well by testing the classifier on a validation set using `sklearn.model_selection.cross_val_score`,
+I verified that they worked well by testing the classifier on a validation set using `sklearn.model_selection.cross_val_score`,
 getting a score of over 99% accuracy.
 
 ####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
@@ -89,7 +89,9 @@ I selected the hyper-parameters for the SVM in `train_classifier.ipynb` using `G
 I implemented the sliding window search in `sliding_window.py` in the function `sliding_window_gen`.
 I tuned and discovered the size and location of windows I would use in `VehicleDetecton.ipynb` under `###Sliding Windows.`
 At first I tried to define windows of several different sizes at different points on the image, which looked something like this:
+
 ![Many different types of windows][all_windows]
+
 But then I decided it was easier to tune using windows of several different sizes with roughly the same parameters. 
 I checked these against my classifier and tuned them by eye against the results that looked like this:
 
