@@ -51,7 +51,7 @@ def show_images(titled_images: Sequence[Tuple[str, np.ndarray]], figsize=(20, 10
 def show_images_from_paths(paths: Sequence[str], figsize=(20, 10), rows=1, cmap="gray"):
     """ Display a bunch of images from a list of paths. """
     titled_images = zip(paths, list(paths_to_images_gen(paths)))
-    show_images(list(titled_images))
+    show_images(list(titled_images), figsize=figsize, rows=rows, cmap=cmap)
 
 
 def paths_to_images_gen(image_paths: Iterable[str]):
@@ -64,3 +64,19 @@ def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6):
     for bbox in bboxes:
         cv2.rectangle(draw_img, bbox[0], bbox[1], color, thick)
     return draw_img
+
+
+def draw_labeled_bboxes(img, labels):
+    # Iterate through all detected cars
+    for car_number in range(1, labels[1] + 1):
+        # Find pixels with each car_number label value
+        nonzero = (labels[0] == car_number).nonzero()
+        # Identify x and y values of those pixels
+        nonzeroy = np.array(nonzero[0])
+        nonzerox = np.array(nonzero[1])
+        # Define a bounding box based on min/max x and y
+        bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
+        # Draw the box on the image
+        cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
+    # Return the image
+    return img

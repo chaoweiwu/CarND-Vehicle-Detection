@@ -24,6 +24,17 @@ The goals / steps of this project are the following:
 [image7]: ./examples/output_bboxes.png
 [video1]: ./project_video.mp4
 
+[all_windoes]: ./writeup_images/all_windows.png
+[candidate_detections]: ./writeup_images/candidate_detections.png
+[car_images]: ./writeup_images/car-images.png
+[no_car_images]: ./writeup_images/no-car-images.png
+[detections]: ./writeup_images/detections.png
+[detections_many]: ./writeup_images/detections_many.png
+[heat_map]: ./writeup_images/heat_map.png
+[hot_windows]: ./writeup_images/hot_windows.png
+[overlapping_windows]: ./writeup_images/overlapping_windows.png
+[yellow_candidates]: ./writeup_images/yellow_candidates yellow_candidates.png
+
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 ###Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
@@ -38,40 +49,66 @@ You're reading it!
 
 ####1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
 
-I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
+I selected and tuned my features by measuring the results of my classifier (`train_classifier.py` and `train_classifier.ipynb`)
+I started by reading  in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 
-![alt text][image1]
+![car images][car_images]
+![no car images][no_car_images]
 
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
+I then created a function that would extract binned colors features, color histogram features, and hog (histogram of gradient) features and combine them horizontally.
+The code for this step is in `features.py` in the function `extract_features`. To extract the hog features I used from `skimage.feature.hog`.
+
 
 Here is an example using the `YCrCb` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
-
 
 ![alt text][image2]
 
 ####2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+I chose parameters:
+
+```python
+ORIENTATIONS = 6
+PIXELS_PER_CELL = 8
+CELLS_PER_BLOCK = 2
+```
+And verified that they worked well by testing the classifier on a validation set using `sklearn.model_selection.cross_val_score`,
+getting a score of over 99% accuracy.
 
 ####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using...
+I trained a linear SVM in `train_classifier.py` in the function `train_model`. 
+I selected the hyper-parameters for the SVM in `train_classifier.ipynb` using `GridSearchCV` under the cell `Search for better params`.
+
 
 ###Sliding Window Search
 
 ####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+I implemented the sliding window search in `sliding_window.py` in the function `sliding_window_gen`.
+I tuned and discovered the size and location of windows I would use in `VehicleDetecton.ipynb` under `###Sliding Windows.`
+At first I tried to define windows of several different sizes at different points on the image, which looked something like this:
+![Many different types of windows][all_windows]
+But then I decided it was easier to tune using windows of several different sizes with roughly the same parameters. 
+I checked these against my classifier and tuned them by eye against the results that looked like this:
 
-![alt text][image3]
+![All the detections][candidate_detections]
+I defined the final windows I would use in `detect_vehicles.py` in the function `all_windows`
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+Finally, I created a heatmap using all of the windows with all of the positive detections in `detect_vehicles.py` 
+in the functions `detect` and `add_heat`. 
 
-![alt text][image4]
+![hot_windows][hot_windows]
+![heat map][heat_map]
+
+I then selected a threshold for the minimum heat to appear then detected labels using `scipy.ndimage.measurements.label`.
+I tweaked the threshold and number of windows to get the best balance of avoiding false positives and finding boxes that
+fit the cars well. The end result looked like:
+
+![All the detections][detections_many]
 ---
 
 ### Video Implementation

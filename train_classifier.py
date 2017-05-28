@@ -15,8 +15,8 @@ CARS_GLOB = './data/vehicles_smallset/*/*.jpeg'
 NO_CARS_GLOB = './data/non-vehicles_smallset/*/*.jpeg'
 
 # Use Full Dataset
-# CARS_GLOB = './data/vehicles/*/*.jpeg'
-# NO_CARS_GLOB = './data/non-vehicles/*/*.jpeg'
+# CARS_GLOB = './data/vehicles/*/*.png'
+# NO_CARS_GLOB = './data/non-vehicles/*/*.png'
 
 # dist_pickle = pickle.load( open("svc_pickle.p", "rb" ) )
 # svc = dist_pickle["svc"]
@@ -48,9 +48,12 @@ def train_model():
         pickle.dump(store, model_f)
 
 
-def load_model():
+def load_model(test_accuracy=False):
     with open(MODEL_FILE, 'rb') as model_f:
         stored = pickle.load(model_f)
+    if not test_accuracy:
+        return stored
+
     svc = stored[MODEL_KEY]
     scaler = stored[SCALER_KEY]
     X, y = load_data()

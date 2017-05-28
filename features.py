@@ -6,6 +6,11 @@ import numpy as np
 
 from util import paths_to_images_gen
 
+ORIENTATIONS = 6
+PIXELS_PER_CELL = 8
+CELLS_PER_BLOCK = 2
+HOG_CHANNEL = 0  # ALL
+
 
 def extract_features_many(imgs, color_space='RGB', spatial_bins=(32, 32), hist_bins=32, hist_range=(0, 256)):
     """ Convert an iterable of images to a list of feature vectors. """
@@ -20,8 +25,21 @@ def extract_features(img: np.ndarray, color_space: str = 'RGB', spatial_size: Tu
     colored = color_hist(img, hist_bins, hist_range)
 
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    hog_features = hog(gray)
+    hog_features = hog(gray, ORIENTATIONS, (PIXELS_PER_CELL, PIXELS_PER_CELL),
+                       (CELLS_PER_BLOCK, CELLS_PER_BLOCK))
     return np.concatenate([binned, colored, hog_features])
+
+
+# class Hog:
+#     def __init__(self, img):
+#         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+#         self.nx_blocks = img.shape[1] // PIXELS_PER_CELL - 1
+#         self.ny_blocks = img.shape[0] // PIXELS_PER_CELL - 1
+#         n_feat
+#         hog_features = hog(gray, ORIENTATIONS, (PIXELS_PER_CELL, PIXELS_PER_CELL),
+#                            (CELLS_PER_BLOCK, CELLS_PER_BLOCK))
+#         
+#     def 
 
 
 def convert_color_space(img, color_space):
