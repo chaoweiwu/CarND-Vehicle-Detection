@@ -24,7 +24,7 @@ The goals / steps of this project are the following:
 [image7]: ./examples/output_bboxes.png
 [video1]: ./project_video.mp4
 
-[all_windoes]: ./writeup_images/all_windows.png
+[all_windows]: ./writeup_images/all_windows.png
 [candidate_detections]: ./writeup_images/candidate_detections.png
 [car_images]: ./writeup_images/car-images.png
 [no_car_images]: ./writeup_images/no-car-images.png
