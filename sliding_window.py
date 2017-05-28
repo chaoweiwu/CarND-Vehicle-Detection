@@ -1,9 +1,8 @@
 from collections import namedtuple
+
 import numpy as np
-import cv2
 
 # Window = namedtuple('Window', 'x_start x_stop y_start y_stop')
-from features import extract_features
 
 Window = namedtuple('Window', 'start_xy stop_xy')
 
@@ -27,32 +26,5 @@ def sliding_window_gen(img_shape, x_start=0, x_stop=None, y_start=0, y_stop=None
                 (start_x, start_y),
                 (start_x + window_width, start_y + window_height)
             )
-
-
-def search_windows(img, windows, clf, scaler, color_space='RGB',
-                   spatial_size=(32, 32), hist_bins=32,
-                   hist_range=(0, 256), orient=9,
-                   pix_per_cell=8, cell_per_block=2,
-                   hog_channel=0, spatial_feat=True,
-                   hist_feat=True, hog_feat=True):
-    """ Returns the windows which have positive results from the classifier in them. """
-
-    positive_windows = []
-    for window in windows:
-        test_img = grab_inner_image(img, window)
-        features = extract_features(test_img, color_space=color_space,
-                                    spatial_size=spatial_size, hist_bins=hist_bins, hist_range=hist_range)
-
-        test_features = scaler.transform(np.array(features).reshape(1, -1))
-        prediction = clf.predict(test_features)
-        if prediction == 1:
-            positive_windows.append(window)
-    return positive_windows
-
-
-def grab_inner_image(outer_img: np.ndarray, window: Window, output_size=(64, 64)) -> np.ndarray:
-    start_x, start_y = window.start_xy
-    stop_x, stop_y = window.stop_xy
-    return cv2.resize(outer_img[start_y:stop_y, start_x:stop_x], output_size)
 
 

@@ -1,10 +1,13 @@
 from glob import glob
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+
 from util import paths_to_images_gen
 from features import extract_features_many
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV
+import matplotlib.image as mpimg
 import pickle
 
 RAND_STATE = 10
@@ -35,13 +38,14 @@ def train_model():
     X, y = load_data()
     X_train, X_test, y_train, y_test, scaler = prepare_data(X, y)
 
-    svc = SVC(kernel='rbf', C=5)
-    svc.fit(X_train, y_train)
-    score = svc.score(X_test, y_test)
+    clf = SVC(kernel='rbf', C=5)
+    # clf = RandomForestClassifier(n_jobs=-1)
+    clf.fit(X_train, y_train)
+    score = clf.score(X_test, y_test)
     print("Trained model with", score, "accuracy")
 
     store = {
-        MODEL_KEY: svc,
+        MODEL_KEY: clf,
         SCALER_KEY: scaler
     }
     with open(MODEL_FILE, 'wb') as model_f:
@@ -63,15 +67,26 @@ def load_model(test_accuracy=False):
     return stored
 
 
-def tune_params():
+def tune_svc_params():
     """ Find the best parameters to use on our support vector machine """
     X, y = load_data()
     X_train, X_test, y_train, y_test, scaler = prepare_data(X, y)
     svc = SVC()
-    parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 5, 10, 20]}
+    parameters = {'kernel': ('linear', 'rbf'), 'C': [0.01, 0.1, 1, 5, 10, 20]}
     grid_search = GridSearchCV(svc, parameters)
     grid_search.fit(X_train, y_train)
     print(grid_search.best_params_)
+
+
+def tune_rfc_params():
+    """ Find the best parameters to use on our support vector machine """
+    X, y = load_data()
+    X_train, X_test, y_train, y_test, scaler = prepare_data(X, y)
+    svc = RandomForestClassifier()
+    # parameters = {'kernel': ('linear', 'rbf'), 'C': [0.01, 0.1, 1, 5, 10, 20]}
+    # grid_search = GridSearchCV(svc, parameters)
+    # grid_search.fit(X_train, y_train)
+    # print(grid_search.best_params_)
 
 
 def prepare_data(X, y, scaler=None):
@@ -87,6 +102,8 @@ def load_data():
     car_paths = glob(CARS_GLOB)
     no_car_paths = glob(NO_CARS_GLOB)
 
+    show_img_size(car_paths[0])
+
     # Detect image paths and load images
     car_imgs = paths_to_images_gen(car_paths)
     car_features = extract_features_many(car_imgs)
@@ -95,6 +112,12 @@ def load_data():
     y = np.concatenate((np.ones(len(car_paths)), np.zeros(len(no_car_paths))))
     X = np.vstack((car_features, no_car_features)).astype(np.float64)
     return X, y
+
+
+def show_img_size(path):
+    img = mpimg.imread(path)
+    print("Training data image size:", img.shape)
+    pass
 
 
 if __name__ == '__main__':

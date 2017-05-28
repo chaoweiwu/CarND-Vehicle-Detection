@@ -4,7 +4,7 @@ import cv2
 from skimage.feature import hog
 import numpy as np
 
-from util import paths_to_images_gen
+from util import grab_inner_image
 
 ORIENTATIONS = 6
 PIXELS_PER_CELL = 8
@@ -14,7 +14,20 @@ HOG_CHANNEL = 0  # ALL
 
 def extract_features_many(imgs, color_space='RGB', spatial_bins=(32, 32), hist_bins=32, hist_range=(0, 256)):
     """ Convert an iterable of images to a list of feature vectors. """
-    return [extract_features(img, color_space, spatial_bins, hist_bins, hist_range) for img in imgs]
+    features = [extract_features(img, color_space, spatial_bins, hist_bins, hist_range) for img in imgs]
+    return features
+
+
+def extract_features_from_windows(img, windows, color_space='RGB', spatial_size=(32, 32), hist_bins=32,
+                                  hist_range=(0, 256)):
+    """ Convert an image and set of windows to a feature matrix. """
+
+    all_window_features = []
+    for window in windows:
+        window_image = grab_inner_image(img, window)
+        window_features = extract_features(window_image, color_space, spatial_size, hist_bins, hist_range)
+        all_window_features.append(window_features)
+    return np.vstack(all_window_features)
 
 
 def extract_features(img: np.ndarray, color_space: str = 'RGB', spatial_size: Tuple = (32, 32),

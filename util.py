@@ -7,6 +7,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import cv2
 
+from sliding_window import Window
+
 
 def plot3d(pixels, colors_rgb, axis_labels=list("RGB"), axis_limits=[(0, 255), (0, 255), (0, 255)]):
     """Plot pixels in 3D."""
@@ -80,3 +82,16 @@ def draw_labeled_bboxes(img, labels):
         cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
     # Return the image
     return img
+
+
+def grab_inner_image(outer_img: np.ndarray, window: Window, output_size=(64, 64)) -> np.ndarray:
+    start_x, start_y = window.start_xy
+    stop_x, stop_y = window.stop_xy
+    return cv2.resize(outer_img[start_y:stop_y, start_x:stop_x], output_size)
+
+
+def apply_threshold(matrix: np.ndarray, threshold: int):
+    """ Zero out pixels below the threshold """
+    cpy = matrix.copy()
+    cpy[cpy <= threshold] = 0
+    return cpy

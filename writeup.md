@@ -100,7 +100,7 @@ I defined the final windows I would use in `detect_vehicles.py` in the function 
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Finally, I created a heatmap using all of the windows with all of the positive detections in `detect_vehicles.py` 
+Finally, I created a heatmap using all of the windows with all of the positive detections in `detect_vehicles.py` and `heatmap.py` 
 in the functions `detect` and `add_heat`. 
 
 ![hot_windows][hot_windows]
@@ -116,7 +116,7 @@ fit the cars well. The end result looked like:
 ### Video Implementation
 
 ####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_videos/project_video.mp4)
 
 
 ####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
